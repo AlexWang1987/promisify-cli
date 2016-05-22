@@ -11,9 +11,9 @@ CLI is just a piece of program, we can just think of it as a `function`, functio
 You can use it building efficient cli tools.
 
 # Usage
-CLI Files 
+CLI Files
 
-```json
+```javascript
 /*
 
 ./cli.json
@@ -49,7 +49,7 @@ var cli = require('../promisify-cli');
 cli()
   .spread(function (param, options) {
     console.log('data->', param, options);
-    
+
     /*
     param: './www'
     options: {
@@ -67,11 +67,11 @@ cli()
 # API
 
 * cli([flags[,options]])
-	
+
 	* [flags]
-	
+
 		eg: ['-p',80,'--host','localhost'] to test you 	funcationality. default get from `process.argv` 	automatically. you don't need to specify it probably.
-	
-	* [options] 
-		* `cli` cli json file path, where to load cli file. default is `cwd/cli.json`		
+
+	* [options]
+		* `cli` cli json file path, where to load cli file. default is `cwd/cli.json`
 		* `enableUnkownOptions` if it allows unknown options 		from 	command line.
