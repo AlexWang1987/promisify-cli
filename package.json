@@ -1,0 +1,29 @@
+{
+  "name": "promisify-cli",
+  "version": "1.0.0",
+  "description": "Promsifiy-cli is just a cli parser following *nix common line arguments conventions, used by promising way.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/AlexWang1987/promisify-cli.git"
+  },
+  "keywords": [
+    "cli",
+    "promisify",
+    "commander",
+    "command"
+  ],
+  "author": "AlexWang <1669499355@qq.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AlexWang1987/promisify-cli/issues"
+  },
+  "homepage": "https://github.com/AlexWang1987/promisify-cli#readme",
+  "dependencies": {
+    "bluebird": "^3.4.0",
+    "promisify-fs": "^1.0.24"
+  }
+}
