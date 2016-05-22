@@ -23,13 +23,13 @@ creat your cli declaration file to describe.
 
 [{
     "flag": "-p"
-    //or "flag": "-p --port"				specify multiple flags, short/long flags
-    //or "flag": "-p, --port <port>" 		indicats *required* param
-    //or "flag": "-p --port [port]" 		indicats [optional] param
-    //"name": "alias name of port" 						explicitly to customize its name
-    //"required" : true / false 			explicitly to specify whether it's optional or must required
-    //"value": "defaultValue"  			explicitly assign a default value
-    //"desc": "description message" 		descriptin message
+    //or "flag": "-p --port"              specify multiple flags, short/long flags
+    //or "flag": "-p, --port <port>"      indicats *required* param
+    //or "flag": "-p --port [port]"       indicats [optional] param
+    //"name": "alias name of port"        explicitly to customize its name
+    //"required" : true / false           explicitly to specify whether it's optional or must required
+    //"value": "defaultValue"             explicitly assign a default value
+    //"desc": "description message"       descriptin message
 },
   {
     "flag": "--host"
@@ -46,6 +46,7 @@ creat your cli declaration file to describe.
 var cli = require('../promisify-cli');
 
 //eg cli: startserver -p 80 --host 192.168.28.3 ./www
+
 cli()
   .spread(function (param, options) {
     console.log('data->', param, options);
@@ -68,10 +69,10 @@ cli()
 
 * cli([flags[,options]])
 
-	* [flags]
+  * [flags]
 
-		eg: ['-p',80,'--host','localhost'] to test you 	funcationality. default get from `process.argv` 	automatically. you don't need to specify it probably.
+    eg: ['-p',80,'--host','localhost'] to test you  funcationality. default get from `process.argv`   automatically. you don't need to specify it probably.
 
-	* [options]
-		* `cli` cli json file path, where to load cli file. default is `cwd/cli.json`
-		* `enableUnkownOptions` if it allows unknown options 		from 	command line.
+  * [options]
+    * `cli` cli json file path, where to load cli file. default is `cwd/cli.json`
+    * `enableUnkownOptions` if it allows unknown options    from  command line.
