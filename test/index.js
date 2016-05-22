@@ -2,13 +2,13 @@
 
 var cli = require('../index.js');
 
-cli(null,{
-  enableUnkownOptions:true
-})
-  .then(function (d) {
-    console.log('data->', d);
+cli()
+  .then(function (param) {
+    console.log('data->', param);
   })
   .catch(function (e) {
     console.error('catch->', e.message);
   })
+
+
 

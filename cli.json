@@ -3,16 +3,5 @@
 },
   {
     "flag": "--host <hostname>"
-},
-  {
-    "flag": "-w",
-    "name": "www"
-},
-  {
-    "flag": "-h,-ad",
-    "name": "host",
-    "required": true,
-    "value": "localhost",
-    "desc": "server address"
 }]
 
