@@ -42,13 +42,13 @@ Parser.prototype.loadCliConfig = function () {
                   option.value = false;
 
                 //identify it's name
-                if (!option.name){
+                if (!option.name) {
                   var requiredIndicat = flag.match(/<(.+)>/) || flag.match(/\[(.+)\]/)
                   var flagName = flag.match(/--(\w+)/) || flag.match(/-(\w+)/);
 
                   option.name = (requiredIndicat && requiredIndicat[1]) ||
-                  (flagName && flagName[1]) ||
-                  flag;
+                    (flagName && flagName[1]) ||
+                    flag;
                 }
 
                 //description
@@ -148,18 +148,17 @@ Parser.prototype.validateUnknowns = function () {
   var self = this;
   return Promise.try(function () {
     //enableUnkownOptions
-    if (self._parserOptions && ! self._parserOptions['enableUnkownOptions']) {
+    if (self._parserOptions && !self._parserOptions['enableUnkownOptions']) {
       var unknownOptions = self._unknownOptions;
 
       if (unknownOptions.length) {
-        throw new Error('These flags are not allowed:\n' + unknownOptions.map(function(unknownOption){
+        throw new Error('These flags are not allowed:\n' + unknownOptions.map(function (unknownOption) {
           return unknownOption.flag + '\n'
         }));
       }
     }
   })
 }
-
 
 /**
  * assign options baseon normalized flag
@@ -245,15 +244,15 @@ Parser.prototype.getParams = function () {
 
   //cli options
   if (this._options) {
-     allOptions = this._options.reduce(function (params, option) {
+    allOptions = this._options.reduce(function (params, option) {
       params[option.name] = option.value;
       return params;
     }, allOptions);
 
   }
   //cli unknow options
-  if (! (this._parserOptions && ! this._parserOptions['enableUnkownOptions'])) {
-     allOptions = this._unknownOptions.reduce(function (params, option) {
+  if (!(this._parserOptions && !this._parserOptions['enableUnkownOptions'])) {
+    allOptions = this._unknownOptions.reduce(function (params, option) {
       params[option.name] = option.value;
       return params;
     }, allOptions);
@@ -263,6 +262,77 @@ Parser.prototype.getParams = function () {
   params.push(allOptions);
 
   return params;
+}
+
+/**
+ * Pad `str` to `width`.
+ *
+ * @param {String} str
+ * @param {Number} width
+ * @return {String}
+ * @api private
+ */
+
+Parser.prototype.pad = function (str, width) {
+  var len = Math.max(0, width - str.length);
+  return str + Array(len + 1).join(' ');
+}
+
+Parser.prototype.maxLengthOfOption = function () {
+  return this._options.reduce(function (max, option) {
+    return Math.max(max, option.flag.length);
+  }, 0);
+}
+
+/**
+ * print out  usage or version
+ * These flags (-v, --version, -h, --help ) are preserved.
+ * @return promise
+ */
+Parser.prototype.helpUsage = function () {
+  var self = this;
+
+  return Promise.try(function () {
+    //cli doesn't exist.
+    if (!self._options) return;
+
+    var preservedFlagExits = false;
+    var preservedFlags = ['-h', '--help', '-v', '--version'];
+    var flag = null;
+
+    if (self._normalizedFlags && self._normalizedFlags.length) {
+      for (var i = 0, len = self._normalizedFlags.length; i < len; i++) {
+        flag = self._normalizedFlags[i];
+
+        if (~preservedFlags.indexOf(flag)) {
+          preservedFlagExits = true;
+          break;
+        }
+      }
+    }
+
+    //print out usage
+    if (preservedFlagExits) {
+      //print out usage and exit
+      var cli = ['',
+        'Usage: cli [options] [arguments]',
+        ''
+      ].join('\n')
+
+      var helpString = preservedFlags.join(', ');
+      var max = self.maxLengthOfOption() + 10;
+      var max = Math.max(helpString.length,max);
+
+      var optionString = [self.pad(helpString, max) + '  ' + 'Output usage information']
+        .concat(self._options.map(function (option) {
+          return self.pad(option.flag, max) + '  ' + (option.desc || '');
+        }))
+        .join('\n')
+
+      console.log(cli  + '\nOptions: \n\n' + optionString + '\n\n');
+      process.exit(0);
+    }
+  })
 }
 
 /**
@@ -283,6 +353,7 @@ var cli = module.exports = function (argv, options) {
     return parser
       .loadCliConfig()
       .then(parser.normolizeFlags.bind(parser))
+      .then(parser.helpUsage.bind(parser))
       .then(parser.assignOptions.bind(parser))
       .then(parser.validateRequireds.bind(parser))
       .then(parser.validateUnknowns.bind(parser))

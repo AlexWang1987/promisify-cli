@@ -9,6 +9,3 @@ cli()
   .catch(function (e) {
     console.error('catch->', e.message);
   })
-
-
-
