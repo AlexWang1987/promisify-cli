@@ -69,7 +69,7 @@ cli()
 
 # API
 
-~~WARNING: `-h`, `--help`, `-v`, `--version` are preserved. They are used to print out Help,Usage,Version information.~~
+> WARNING: `-h`, `--help`, `-v`, `--version` are preserved. They are used to print out Help,Usage,Version information.
 
 * cli([flags[,options]])
 
