@@ -21,6 +21,8 @@ CLI Files
 creat your cli declaration file to describe.
 */
 
+//WARNING: '-h', '--help', '-v', '--version' are preserved. They are used to print out  Usage or Version information.
+
 [{
     "flag": "-p"
     //or "flag": "-p --port"              specify multiple flags, short/long flags
@@ -66,6 +68,8 @@ cli()
 ```
 
 # API
+
+~~WARNING: `-h`, `--help`, `-v`, `--version` are preserved. They are used to print out Help,Usage,Version information.~~
 
 * cli([flags[,options]])
 
