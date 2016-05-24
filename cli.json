@@ -1,9 +1,0 @@
-[{
-    "flag": "-p, --port, [port]",
-    "desc": "端口设置"
-},
-  {
-    "flag": "--host <hostname>",
-    "desc": "主机地址"
-}]
-

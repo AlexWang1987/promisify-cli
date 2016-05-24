@@ -15,27 +15,28 @@ CLI Files
 
 ```javascript
 /*
-
-./cli.json
-
-creat your cli declaration file to describe.
+In package.json adding a new Field `cli`
 */
 
 //WARNING: '-h', '--help', '-v', '--version' are preserved. They are used to print out  Usage or Version information.
+{
+ ......
+  cli:[{
+      "flag": "-p"
+      //or "flag": "-p --port"              specify multiple flags, short/long flags
+      //or "flag": "-p, --port <port>"      indicats *required* param
+      //or "flag": "-p --port [port]"       indicats [optional] param
+      //"name": "alias name of port"        explicitly to customize its name
+      //"required" : true / false           explicitly to specify whether it's optional or must required
+      //"value": "defaultValue"             explicitly assign a default value
+      //"desc": "description message"       descriptin message
+  },
+    {
+      "flag": "--host"
+  }]
+......
+}
 
-[{
-    "flag": "-p"
-    //or "flag": "-p --port"              specify multiple flags, short/long flags
-    //or "flag": "-p, --port <port>"      indicats *required* param
-    //or "flag": "-p --port [port]"       indicats [optional] param
-    //"name": "alias name of port"        explicitly to customize its name
-    //"required" : true / false           explicitly to specify whether it's optional or must required
-    //"value": "defaultValue"             explicitly assign a default value
-    //"desc": "description message"       descriptin message
-},
-  {
-    "flag": "--host"
-}]
 ```
 
 ```javascript
@@ -78,5 +79,4 @@ cli()
     eg: ['-p',80,'--host','localhost'] to test you  funcationality. default get from `process.argv`   automatically. you don't need to specify it probably.
 
   * [options]
-    * `cli` cli json file path, where to load cli file. default is `cwd/cli.json`
     * `enableUnkownOptions` if it allows unknown options    from  command line.

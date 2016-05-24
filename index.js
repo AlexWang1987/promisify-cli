@@ -1,6 +1,7 @@
 /* eslint-disable */
 var Promise = require('bluebird');
 var fs = require('promisify-fs');
+var path = require('path');
 
 /**
  * Option
@@ -16,49 +17,85 @@ function Parser(argv, options) {
 }
 
 /**
- * load from local ./cli.xml
+ * load from package.json who depend on `promisify-cli`
  * @return {[type]} [description]
  */
+
+Parser.prototype.loadPackageCli = function () {
+  return fs.fileExists(process.cwd() + '/package.json')
+    .then(function(file_stat) {
+      if(file_stat){
+        return fs.readJSON(file_stat.abs_path)
+      }
+      throw new Error('package does"t exist.')
+    })
+    .then(function(package_json) {
+      return [package_json.name,package_json.description,package_json.cli]
+    })
+  // return Promise
+  //   .any(require.main.paths.map(function (item) {
+  //     return fs.folderExists(item)
+  //       .then(function (node_modules_stat) {
+  //         if (node_modules_stat) {
+  //           return fs.fileExists(path.resolve(node_modules_stat.abs_path, '../package.json'));
+  //         }
+  //         throw "node_modules doesn't exist:" + item;
+  //       })
+  //       .then(function (package_stat) {
+  //         if (package_stat) {
+  //           return fs.readJSON(package_stat.abs_path);
+  //         }
+  //         throw "package doesn't exist";
+  //       })
+  //       .then(function (package_json) {
+  //         if (package_json) {
+  //           return [package_json.name,package_json.description,package_json.cli]
+  //         }
+  //         throw "package content doesn't exist";
+  //       })
+  //   }))
+    .catch(function (e) {
+      return;
+    })
+}
 Parser.prototype.loadCliConfig = function () {
   var self = this;
-  var cli_file_path = (this._parserOptions && this._parserOptions['cli']) || process.cwd() + '/cli.json';
-  return fs.fileExists(cli_file_path)
-    .then(function (file_stat) {
-      if (file_stat) {
-        return fs
-          .readJSON(file_stat.abs_path)
-          .then(function (options) {
-            //parse option
-            if (options && options.length) {
-              for (var i = 0, len = options.length; i < len; ++i) {
-                var option = options[i];
-                var flag = option.flag;
-                //this option is required or optional
-                if (!option.required)
-                  option.required = !!~flag.indexOf('<');
 
-                //if it is starting with --no- or -no- it will be false
-                if (~flag.indexOf('-no-'))
-                  option.value = false;
+  return self
+    .loadPackageCli()
+    .spread(function (name,desc,options) {
+      self._cliName = name;
+      self._desc = desc;
 
-                //identify it's name
-                if (!option.name) {
-                  var requiredIndicat = flag.match(/<(.+)>/) || flag.match(/\[(.+)\]/)
-                  var flagName = flag.match(/--(\w+)/) || flag.match(/-(\w+)/);
+      //parse option
+      if (options && options.length) {
+        for (var i = 0, len = options.length; i < len; ++i) {
+          var option = options[i];
+          var flag = option.flag;
+          //this option is required or optional
+          if (!option.required)
+            option.required = !!~flag.indexOf('<');
 
-                  option.name = (requiredIndicat && requiredIndicat[1]) ||
-                    (flagName && flagName[1]) ||
-                    flag;
-                }
+          //if it is starting with --no- or -no- it will be false
+          if (~flag.indexOf('-no-'))
+            option.value = false;
 
-                //description
-                if (!option.desc)
-                  option.desc = ''
-              }
-            }
-            return self._options = options;
-          })
+          //identify it's name
+          if (!option.name) {
+            var requiredIndicat = flag.match(/<(.+)>/) || flag.match(/\[(.+)\]/)
+            var flagName = flag.match(/--(\w+)/) || flag.match(/-(\w+)/);
+
+            option.name = (requiredIndicat && requiredIndicat[1]) ||
+              (flagName && flagName[1]) ||
+              flag;
+          }
+
+          //description
+          if (!option.desc)
+            option.desc = ''
+        }
       }
+      return self._options = options || [];
     })
 };
 
@@ -315,13 +352,14 @@ Parser.prototype.helpUsage = function () {
     if (preservedFlagExits) {
       //print out usage and exit
       var cli = ['',
-        'Usage: cli [options] [arguments]',
+        'Usage: '+(self._cliName || 'cli')+' [options] [arguments] \n',
+        self._desc || '',
         ''
       ].join('\n')
 
       var helpString = preservedFlags.join(', ');
       var max = self.maxLengthOfOption() + 10;
-      var max = Math.max(helpString.length,max);
+      var max = Math.max(helpString.length, max);
 
       var optionString = [self.pad(helpString, max) + '  ' + 'Output usage information']
         .concat(self._options.map(function (option) {
@@ -329,7 +367,7 @@ Parser.prototype.helpUsage = function () {
         }))
         .join('\n')
 
-      console.log(cli  + '\nOptions: \n\n' + optionString + '\n\n');
+      console.log(cli + '\nOptions: \n\n' + optionString + '\n\n');
       process.exit(0);
     }
   })
