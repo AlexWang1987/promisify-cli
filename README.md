@@ -80,3 +80,5 @@ cli()
 
   * [options]
     * `enableUnkownOptions` if it allows unknown options    from  command line.
+
+# inspired by [commander](https://www.npmjs.com/package/commander)
