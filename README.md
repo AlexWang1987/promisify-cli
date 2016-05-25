@@ -84,3 +84,11 @@ cli()
 # Inspired
 
 specially thanks to  [commander](https://www.npmjs.com/package/commander)
+
+# Good Library Companions
+# [promisify-bash](https://www.npmjs.com/package/promisify-bash)
+# [promisify-fetch](https://www.npmjs.com/package/promisify-fetch)
+# [promsifiy-fs](https://www.npmjs.com/package/promisify-fs)
+# [promsifiy-git](https://www.npmjs.com/package/promisify-git)
+# [promsifiy-npm](https://www.npmjs.com/package/promisify-npm)
+
