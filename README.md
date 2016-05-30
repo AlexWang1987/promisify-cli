@@ -51,12 +51,17 @@ var cli = require('../promisify-cli');
 //eg cli: startserver -p 80 --host 192.168.28.3 ./www
 
 cli()
-  .spread(function (param, options) {
-    console.log('data->', param, options);
+  .then(function (cli) {
+    console.log('data->', cli.params, cli.options);
 
-    /*
-    param: './www'
-    options: {
+    /*  params
+      [
+        './www'
+      ]
+    */
+
+    /*  options
+    {
       p: '80',
       host: '192.168.28.3'
     }
@@ -72,14 +77,18 @@ cli()
 
 > WARNING: `-h`, `--help`, `-v`, `--version` are preserved. They are used to print out Help,Usage,Version information.
 
-* cli([flags[,options]])
+* cli([flags[,options]]) `function` get cli object
 
   * [flags]
 
-    eg: ['-p',80,'--host','localhost'] to test you  funcationality. default get from `process.argv`   automatically. you don't need to specify it probably.
+	    eg: ['-p',80,'--host','localhost'] to test you  funcationality. 		default get from `process.argv`   automatically. you don't need 		to specify it probably.
 
   * [options]
-    * `enableUnkownOptions` if it allows unknown options    from  command line.
+    	* `enableUnkownOptions` if it allows unknown options from  command line.
+
+* cli.params []			`parsed arguments from command line`
+* cli.options	 {}		`parsed flags from command line`
+* cli.help 	`function` print out all usage and help information and exit.
 
 # Inspired
 

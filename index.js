@@ -23,37 +23,15 @@ function Parser(argv, options) {
 
 Parser.prototype.loadPackageCli = function () {
   return fs.fileExists(process.cwd() + '/package.json')
-    .then(function(file_stat) {
-      if(file_stat){
+    .then(function (file_stat) {
+      if (file_stat) {
         return fs.readJSON(file_stat.abs_path)
       }
       throw new Error('package does"t exist.')
     })
-    .then(function(package_json) {
-      return [package_json.name,package_json.description,package_json.cli]
+    .then(function (package_json) {
+      return [package_json.name, package_json.description, package_json.cli]
     })
-  // return Promise
-  //   .any(require.main.paths.map(function (item) {
-  //     return fs.folderExists(item)
-  //       .then(function (node_modules_stat) {
-  //         if (node_modules_stat) {
-  //           return fs.fileExists(path.resolve(node_modules_stat.abs_path, '../package.json'));
-  //         }
-  //         throw "node_modules doesn't exist:" + item;
-  //       })
-  //       .then(function (package_stat) {
-  //         if (package_stat) {
-  //           return fs.readJSON(package_stat.abs_path);
-  //         }
-  //         throw "package doesn't exist";
-  //       })
-  //       .then(function (package_json) {
-  //         if (package_json) {
-  //           return [package_json.name,package_json.description,package_json.cli]
-  //         }
-  //         throw "package content doesn't exist";
-  //       })
-  //   }))
     .catch(function (e) {
       return;
     })
@@ -63,7 +41,7 @@ Parser.prototype.loadCliConfig = function () {
 
   return self
     .loadPackageCli()
-    .spread(function (name,desc,options) {
+    .spread(function (name, desc, options) {
       self._cliName = name;
       self._desc = desc;
 
@@ -271,34 +249,36 @@ Parser.prototype.assignOptions = function () {
  * get normal params
  * @return {[type]} [description]
  */
-Parser.prototype.getParams = function () {
+Parser.prototype.getCLI = function () {
   //spread options and params
   var params = [];
-  var allOptions = {};
+  var options = {};
 
   //cli arments
   if (this._args) params = params.concat(this._args);
 
   //cli options
   if (this._options) {
-    allOptions = this._options.reduce(function (params, option) {
-      params[option.name] = option.value;
-      return params;
-    }, allOptions);
-
+    options = this._options.reduce(function (options, option) {
+      options[option.name] = option.value;
+      return options;
+    }, options);
   }
+
   //cli unknow options
   if (!(this._parserOptions && !this._parserOptions['enableUnkownOptions'])) {
-    allOptions = this._unknownOptions.reduce(function (params, option) {
-      params[option.name] = option.value;
-      return params;
-    }, allOptions);
+    options = this._unknownOptions.reduce(function (options, option) {
+      options[option.name] = option.value;
+      return options;
+    }, options);
   }
 
-  //add all cli options as `options`
-  params.push(allOptions);
-
-  return params;
+  //cli object
+  return {
+    params: params,
+    options: options,
+    help: this.helpUsage
+  };
 }
 
 /**
@@ -352,7 +332,7 @@ Parser.prototype.helpUsage = function () {
     if (preservedFlagExits) {
       //print out usage and exit
       var cli = ['',
-        'Usage: '+(self._cliName || 'cli')+' [options] [arguments] \n',
+        'Usage: ' + (self._cliName || 'cli') + ' [options] [arguments] \n',
         self._desc || '',
         ''
       ].join('\n')
@@ -395,7 +375,7 @@ var cli = module.exports = function (argv, options) {
       .then(parser.assignOptions.bind(parser))
       .then(parser.validateRequireds.bind(parser))
       .then(parser.validateUnknowns.bind(parser))
-      .then(parser.getParams.bind(parser))
+      .then(parser.getCLI.bind(parser))
   })
 }
 
