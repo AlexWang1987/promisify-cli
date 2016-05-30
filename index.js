@@ -334,7 +334,7 @@ Parser.prototype.help = function () {
   //print out usage
   //print out usage and exit
   var cli = ['',
-      'Usage: ' + (self._cliName || 'cli') + ' [options] [arguments] \n',
+      'Usage: ' + (self._cliName || 'cli') + ' [options] [params] \n',
       self._desc || '',
       ''
     ].join('\n')
