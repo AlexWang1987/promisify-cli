@@ -6,10 +6,10 @@ var fs = require('promisify-fs');
 var path = require('path');
 
 cli()
-  .spread(function (param,options) {
-    console.log('data->', param,options);
+  .then(function (cli) {
+    cli.help();
   })
   .catch(function (e) {
-    console.error('catch->', e.message);
+    console.error('catch->', e);
   })
 

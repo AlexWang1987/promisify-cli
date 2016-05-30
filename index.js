@@ -14,6 +14,7 @@ function Option(flag, val, desc) {}
 function Parser(argv, options) {
   this._rawFlags = argv;
   this._parserOptions = options;
+  this._preservedFlags = ['-h', '--help', '-v', '--version'];
 }
 
 /**
@@ -181,6 +182,7 @@ Parser.prototype.validateUnknowns = function () {
  */
 Parser.prototype.assignOptions = function () {
   var self = this;
+
   return Promise.try(function () {
     var flag = null;
     var option = null;
@@ -277,7 +279,7 @@ Parser.prototype.getCLI = function () {
   return {
     params: params,
     options: options,
-    help: this.helpUsage
+    help: this.help.bind(this)
   };
 }
 
@@ -310,47 +312,45 @@ Parser.prototype.helpUsage = function () {
   var self = this;
 
   return Promise.try(function () {
-    //cli doesn't exist.
-    if (!self._options) return;
-
     var preservedFlagExits = false;
-    var preservedFlags = ['-h', '--help', '-v', '--version'];
     var flag = null;
 
     if (self._normalizedFlags && self._normalizedFlags.length) {
       for (var i = 0, len = self._normalizedFlags.length; i < len; i++) {
         flag = self._normalizedFlags[i];
-
-        if (~preservedFlags.indexOf(flag)) {
+        if (~self._preservedFlags.indexOf(flag)) {
           preservedFlagExits = true;
           break;
         }
       }
     }
-
-    //print out usage
-    if (preservedFlagExits) {
-      //print out usage and exit
-      var cli = ['',
-        'Usage: ' + (self._cliName || 'cli') + ' [options] [arguments] \n',
-        self._desc || '',
-        ''
-      ].join('\n')
-
-      var helpString = preservedFlags.join(', ');
-      var max = self.maxLengthOfOption() + 10;
-      var max = Math.max(helpString.length, max);
-
-      var optionString = [self.pad(helpString, max) + '  ' + 'Output usage information']
-        .concat(self._options.map(function (option) {
-          return self.pad(option.flag, max) + '  ' + (option.desc || '');
-        }))
-        .join('\n')
-
-      console.log(cli + '\nOptions: \n\n' + optionString + '\n\n');
-      process.exit(0);
-    }
+    if (self.preservedFlagExits) self.help();
   })
+}
+
+Parser.prototype.help = function () {
+  var self = this;
+
+  //print out usage
+  //print out usage and exit
+  var cli = ['',
+      'Usage: ' + (self._cliName || 'cli') + ' [options] [arguments] \n',
+      self._desc || '',
+      ''
+    ].join('\n')
+
+  var helpString = self._preservedFlags.join(', ');
+  var max = self.maxLengthOfOption() + 10;
+  var max = Math.max(helpString.length, max);
+
+  var optionString = [self.pad(helpString, max) + '  ' + 'Output usage information']
+    .concat(self._options.map(function (option) {
+      return self.pad(option.flag, max) + '  ' + (option.desc || '');
+    }))
+    .join('\n')
+
+  console.log(cli + '\nOptions: \n\n' + optionString + '\n\n');
+  process.exit(0);
 }
 
 /**
