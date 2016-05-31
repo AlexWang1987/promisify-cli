@@ -324,7 +324,7 @@ Parser.prototype.helpUsage = function () {
         }
       }
     }
-    if (self.preservedFlagExits) self.help();
+    if (preservedFlagExits) self.help();
   })
 }
 
