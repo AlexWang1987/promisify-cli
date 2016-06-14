@@ -1,6 +1,6 @@
 {
   "name": "promisify-cli",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "description": "Promsifiy-cli is just a cli parser following *nix common line arguments conventions, used by promising way.",
   "main": "index.js",
   "scripts": {
