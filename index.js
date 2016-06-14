@@ -87,10 +87,10 @@ Parser.prototype.loadCliConfig = function () {
             option.required = !!~flag.indexOf('<');
 
           //if it is starting with --no- or -no- it will be false
-          if (~flag.indexOf('--no-')) {
-            option.value = false;
-            option.flag = flag = flag.replace('--no', '');
-          }
+          // if (~flag.indexOf('--no-')) {
+          //   option.value = false;
+          //   option.flag = flag = flag.replace('--no', '');
+          // }
 
           //identify it's name
           if (!option.name) {
