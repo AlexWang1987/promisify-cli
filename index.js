@@ -18,12 +18,36 @@ function Parser(argv, options) {
 }
 
 /**
+ * getMainModule's Package
+ * @return promise
+ */
+Parser.prototype.getMainModulePackage = function () {
+  return Promise
+    .mapSeries(require.main.paths, function (node_modules_path) {
+      var pkg_file_path = path.resolve(node_modules_path, '../package.json');
+      return fs
+        .fileExists(pkg_file_path)
+        .then(function (file_stat) {
+          if (file_stat) {
+            throw file_stat; //target package is found. stop iteration.
+          }
+        })
+    })
+    .then(function () {
+      throw 'Warning: The main module of process is not distributed by npm ecosystem.';
+    })
+    .catch(function (file_stat) {
+      return file_stat;
+    })
+}
+
+/**
  * load from package.json who depend on `promisify-cli`
  * @return {[type]} [description]
  */
 
 Parser.prototype.loadPackageCli = function () {
-  return fs.fileExists(process.cwd() + '/package.json')
+  return this.getMainModulePackage()
     .then(function (file_stat) {
       if (file_stat) {
         return fs.readJSON(file_stat.abs_path)
@@ -34,9 +58,16 @@ Parser.prototype.loadPackageCli = function () {
       return [package_json.name, package_json.description, package_json.cli]
     })
     .catch(function (e) {
-      return;
+      var feedbacks = [];
+      try {
+        var mainModuleAbsFile = process.mainModule.filename;
+        //let's consider mainModule as CLI name
+        feedbacks.push(mainModuleAbsFile.slice(mainModuleAbsFile.lastIndexOf('/') + 1));
+      } catch (e) {}
+      return feedbacks;
     })
 }
+
 Parser.prototype.loadCliConfig = function () {
   var self = this;
 
@@ -131,7 +162,8 @@ Parser.prototype.getOptionByFlag = function (flag) {
   if (this._options) {
     for (var i = 0, len = this._options.length; i < len; ++i) {
       var option = this._options[i];
-      if (option.flag && ~option.flag.split(/[, ]/).indexOf(flag)) {
+      if (option.flag && ~option.flag.split(/[, ]/)
+        .indexOf(flag)) {
         return option;
       }
     }
@@ -219,9 +251,10 @@ Parser.prototype.assignOptions = function () {
               }
 
               //camelCase
-              flagName = longFlagName.split('-').reduce(function (last, crt) {
-                return last + crt[0].toUpperCase() + crt.slice(1)
-              })
+              flagName = longFlagName.split('-')
+                .reduce(function (last, crt) {
+                  return last + crt[0].toUpperCase() + crt.slice(1)
+                })
             } else {
               flagName = longFlagName;
             }
@@ -294,7 +327,8 @@ Parser.prototype.getCLI = function () {
 
 Parser.prototype.pad = function (str, width) {
   var len = Math.max(0, width - str.length);
-  return str + Array(len + 1).join(' ');
+  return str + Array(len + 1)
+    .join(' ');
 }
 
 Parser.prototype.maxLengthOfOption = function () {
@@ -334,10 +368,10 @@ Parser.prototype.help = function () {
   //print out usage
   //print out usage and exit
   var cli = ['',
-      'Usage: ' + (self._cliName || 'cli') + ' [options] [params] \n',
-      self._desc || '',
-      ''
-    ].join('\n')
+    'Usage: ' + (self._cliName || 'cli') + ' [options] [params] \n',
+    self._desc || '',
+    ''
+  ].join('\n')
 
   var helpString = self._preservedFlags.join(', ');
   var max = self.maxLengthOfOption() + 10;
