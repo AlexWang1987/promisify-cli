@@ -87,8 +87,10 @@ Parser.prototype.loadCliConfig = function () {
             option.required = !!~flag.indexOf('<');
 
           //if it is starting with --no- or -no- it will be false
-          if (~flag.indexOf('-no-'))
+          if (~flag.indexOf('--no-')) {
             option.value = false;
+            option.flag = flag = flag.replace('--no', '');
+          }
 
           //identify it's name
           if (!option.name) {
@@ -143,6 +145,12 @@ Parser.prototype.normolizeFlags = function () {
         _normalizedFlags = _normalizedFlags.concat(_flag.split('='));
         continue;
       }
+
+      //--no-
+      // if (/^--no-/.test(_flag)) {
+      //   _normalizedFlags = _normalizedFlags.concat([_flag.replace('no-', ''), false]);
+      //   continue;
+      // }
 
       _normalizedFlags.push(_flag);
     }
@@ -228,7 +236,7 @@ Parser.prototype.assignOptions = function () {
       //assign value based on option
       if (option) {
         var nextArg = self._normalizedFlags[i + 1];
-        if (nextArg && '-' !== nextArg[0]) {
+        if (nextArg != undefined && '-' !== nextArg[0]) {
           option.value = nextArg;
           i++;
           continue;
@@ -358,6 +366,7 @@ Parser.prototype.helpUsage = function () {
         }
       }
     }
+
     if (preservedFlagExits) self.help();
   })
 }
