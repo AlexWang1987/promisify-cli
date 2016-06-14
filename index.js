@@ -166,6 +166,7 @@ Parser.prototype.normolizeFlags = function () {
  * @return {[type]}      [description]
  */
 Parser.prototype.getOptionByFlag = function (flag) {
+  if (~/^--no/.test(flag)) return;
   //flag could be a -,--,literals
   if (this._options) {
     for (var i = 0, len = this._options.length; i < len; ++i) {
