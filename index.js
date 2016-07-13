@@ -19,7 +19,7 @@ function Parser(argv, options) {
 
 /**
  * getMainModule's Package
- * @return promise
+ * @return Promise
  */
 Parser.prototype.getMainModulePackage = function () {
   return Promise
@@ -82,15 +82,18 @@ Parser.prototype.loadCliConfig = function () {
         for (var i = 0, len = options.length; i < len; ++i) {
           var option = options[i];
           var flag = option.flag;
+          //default true
+          if (option.value == undefined) option.value = true;
+
           //this option is required or optional
           if (!option.required)
             option.required = !!~flag.indexOf('<');
 
-          //if it is starting with --no- or -no- it will be false
-          // if (~flag.indexOf('--no-')) {
-          //   option.value = false;
-          //   option.flag = flag = flag.replace('--no', '');
-          // }
+          // if it is starting with --no- or -no- it will be false
+          if (~flag.indexOf('--no-')) {
+            option.value = false;
+            flag = flag.replace('--no', '');
+          }
 
           //identify it's name
           if (!option.name) {
